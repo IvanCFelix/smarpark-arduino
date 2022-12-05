@@ -11,7 +11,7 @@
 #include "addons/RTDBHelper.h"
 
 
-#define WIFI_SSID "f(x)=(3x*ʌ2 + 2y)"
+#define WIFI_SSID "f(x)=(3x*^2 + 2y)"
 #define WIFI_PASSWORD "?*maincra123*?"
 #define API_KEY "rVlmb7J1Pr03FFb24yvpoewgQ9PcRBkTCpEEInhc"
 
@@ -41,11 +41,7 @@ void setup() {
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
-
- config.api_key = API_KEY;
-
-  /* Assign the RTDB URL (required) */
-  config.database_url = DATABASE_URL;
+  Serial.println();
 
    pinMode(PIN_TRIG, OUTPUT);
    pinMode(PIN_ECHO, INPUT);
