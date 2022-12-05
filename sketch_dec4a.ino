@@ -13,10 +13,19 @@
 
 #define WIFI_SSID "f(x)=(3x*^2 + 2y)"
 #define WIFI_PASSWORD "?*maincra123*?"
-#define API_KEY "rVlmb7J1Pr03FFb24yvpoewgQ9PcRBkTCpEEInhc"
+#define API_KEY "AIzaSyCX1AYANAMaXVUxpjCaYLcTS4lHC_x1LMs"
 
 // Insert RTDB URLefine the RTDB URL */
 #define DATABASE_URL "https://smartpark-286d6-default-rtdb.firebaseio.com"
+
+FirebaseData fbdo;
+
+FirebaseAuth auth;
+FirebaseConfig config;
+
+unsigned long sendDataPrevMillis = 0;
+int count = 0;
+bool signupOK = false;
 
 
 #define PIN_TRIG D7 
@@ -43,6 +52,24 @@ void setup() {
   Serial.println(WiFi.localIP());
   Serial.println();
 
+  config.api_key = API_KEY;
+
+  /* Assign the RTDB URL (required) */
+  config.database_url = DATABASE_URL;
+
+  /* Sign up */
+  if (Firebase.signUp(&config, &auth, "", "")){
+    Serial.println("ok");
+    signupOK = true;
+  }
+  else{
+    Serial.printf("%s\n", config.signer.signupError.message.c_str());
+  }
+  config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+  
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+
    pinMode(PIN_TRIG, OUTPUT);
    pinMode(PIN_ECHO, INPUT);
    pinMode(TRIG_LOTE_DOS, OUTPUT);
@@ -50,6 +77,19 @@ void setup() {
 }
 
 void loop() {
+if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0)){
+    sendDataPrevMillis = millis();
+    // Write an Int number on the database path test/int
+    if (Firebase.RTDB.setInt(&fbdo, "test/int", count)){
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+    }
+    else {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+    }
+}
    digitalWrite(PIN_TRIG, HIGH);  //generamos Trigger (disparo) de 10us
    delayMicroseconds(4);
   digitalWrite(PIN_TRIG, LOW);  //para generar un pulso limpio ponemos a LOW 4us
